@@ -1,62 +1,80 @@
 <script>
-  let messages = [
-    {
-      from: "app",
-      content: "Hello! How can I help you today?"
-    }
-  ];
+	import showdown from 'showdown';
+	const converter = new showdown.Converter();
 
-  let outgoingMessage = "";
-  let appTyping = false;
+	let messages = [
+		{
+			from: 'app',
+			content: 'Hello! How can I help you today?'
+		}
+	];
 
-  /** @param {KeyboardEvent} e */
-  async function handleKeypress(e) {
-    if (e.key === "Enter") {
-      const freezeMessage = outgoingMessage;
-      outgoingMessage = "";
+	let outgoingMessage = '';
+	let appTyping = false;
 
-      messages = [...messages, {
-        from: "user",
-        content: freezeMessage
-      }];
+	/** @param {KeyboardEvent} e */
+	async function handleKeypress(e) {
+		if (e.key === 'Enter') {
+			const freezeMessage = outgoingMessage;
+			outgoingMessage = '';
 
-      appTyping = true;
+			messages = [
+				...messages,
+				{
+					from: 'user',
+					content: freezeMessage
+				}
+			];
 
-      const res = await fetch("http://localhost:3000/prompt?" + new URLSearchParams({
-        q: freezeMessage
-      }));
-      const json = await res.json();
-      
-      messages = [...messages, {
-        from: "app",
-        content: json.response
-      }];
+			appTyping = true;
 
-      appTyping = false;
-    }
-  }
+			const res = await fetch(
+				'http://localhost:3000/prompt?' +
+					new URLSearchParams({
+						q: freezeMessage
+					})
+			);
+			const json = await res.json();
+
+			messages = [
+				...messages,
+				{
+					from: 'app',
+					content: json.response
+				}
+			];
+
+			appTyping = false;
+		}
+	}
 </script>
 
 <div class="min-h-screen bg-white-linen-100">
-  <div class="max-w-lg mx-auto py-10">
-    <div class="flex flex-col gap-4">
-      {#each messages as message}
-        <div class={`flex ${message.from === "app" ? "" : "justify-end"}`}>
-          <div class={`bg-white px-4 py-2 rounded shadow ${message.from === "app" ? "bg-white" : "bg-snow-flurry-100"}`}>
-            {message.content}
-          </div>
-        </div>
-      {/each}
+	<div class="max-w-lg mx-auto py-10">
+		<div class="flex flex-col gap-4">
+			{#each messages as message}
+				<div class={`flex ${message.from === 'app' ? '' : 'justify-end'}`}>
+					<div
+						class={`prose prose-p:p-0 prose-li:my-1 leading-5 p-4 rounded shadow ${message.from === 'app' ? 'bg-white' : 'bg-snow-flurry-100'}`}
+					>
+						{@html converter.makeHtml(message.content)}
+					</div>
+				</div>
+			{/each}
 
-      {#if appTyping}
-        <div class="flex">
-          <div class="bg-white px-4 py-2 rounded shadow">
-            <img class="w-6 h-6" src="/typing.svg" alt="Typing..." />
-          </div>
-        </div>
-      {/if}
+			{#if appTyping}
+				<div class="flex">
+					<div class="bg-white px-4 py-2 rounded shadow">
+						<img class="w-6 h-6" src="/typing.svg" alt="Typing..." />
+					</div>
+				</div>
+			{/if}
 
-      <textarea class="bg-white rounded-xl w-full px-4 py-1 shadow-md" on:keyup={handleKeypress} bind:value={outgoingMessage}></textarea>
-    </div>
-  </div>
+			<textarea
+				class="bg-white rounded-xl w-full px-4 py-1 shadow-md"
+				on:keyup={handleKeypress}
+				bind:value={outgoingMessage}
+			></textarea>
+		</div>
+	</div>
 </div>

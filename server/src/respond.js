@@ -23,12 +23,9 @@ const llm = new ChatOllama({
   model: "gemma",
 });
 
-const SYSTEM_TEMPLATE = `Answer the user's questions to the best of your ability using the following context as a guide.
-Do not say "based on the provided context," "the provided text suggests," or anything similar.
+const SYSTEM_TEMPLATE = `{context}
 
-<context>
-{context}
-</context>
+You are a friend providing advice. Give no more than a single paragraph response.
 `;
 
 const prompt = ChatPromptTemplate.fromMessages([
