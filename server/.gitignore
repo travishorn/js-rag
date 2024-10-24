@@ -1,3 +1,5 @@
-content
+content/*
 node_modules
 vector_store
+
+!content/.gitkeep
